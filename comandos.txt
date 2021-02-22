@@ -1,0 +1,5 @@
+https://deno.land/x/dext@0.10.3
+
+deno test test/reconocimiento.test.ts
+
+deno bundle index.ts index.js
