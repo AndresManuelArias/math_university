@@ -155,3 +155,62 @@ export function encontrarCero2x2(matriz2x2:number[][]):any{
 export function  GaussJordan2X2(matriz2x2:[[number,number,number],[number,number,number]]):[[number,number,number],[number,number,number]]{
    return [[1,2,3],[1,3,4]]
 }
+
+export interface Ecuation {
+   x:number[]
+   sol:number
+}
+
+export interface VariableSimple{
+   z:Ecuation
+   ecuations:Ecuation[]
+}
+function generarMatrizUnosCeros(longitud:number):number[][]{
+   let element:number[][] = []
+   for (let fila = 0; fila < longitud; fila++) {
+      let crearColumnas:number[] = []
+      for (let columna = 0; columna < longitud; columna++) {
+         if(fila == columna){
+            crearColumnas.push(1)
+         }else{
+            crearColumnas.push(0)
+         }
+      }
+      element.push(crearColumnas)
+   }
+   return element
+}
+function transformarInecuacionAEcuacion(matrix:VariableSimple):number[][]{
+   let nuevaMatriz:number[][] = [matrix.z.x].concat(matrix.ecuations.map(x=>x.x))
+   let nuevaMatrizSol:number[] = [matrix.z.sol].concat(matrix.ecuations.map(x=>x.sol))
+   let convertirInecuacionAecuacion:number[][]= generarMatrizUnosCeros(matrix.z.x.length+1)
+   .map((fila,indice)=> nuevaMatriz[indice].concat(fila).concat(nuevaMatrizSol[indice]) )
+   return convertirInecuacionAecuacion
+}
+export function metodoSimplexprimal(matrix:VariableSimple):number[][]{//https://www.youtube.com/watch?v=fhZxbcFNH5Y
+   let convertirInecuacionAecuacion:number[][]= transformarInecuacionAEcuacion(matrix)
+   
+   while (convertirInecuacionAecuacion[0].some(columna=>columna<0)) {
+   let minColumna:number =  Math.min(... convertirInecuacionAecuacion[0])
+   let indexColumnaPivote:number = convertirInecuacionAecuacion[0].findIndex(fila=>fila==minColumna)
+   let valoresColumnaPivote:number[]= convertirInecuacionAecuacion.slice(1).map(fila=>fila.slice(indexColumnaPivote)[0])
+   let valoresR:number[] = convertirInecuacionAecuacion.slice(1).map((fila,index)=>fila.slice(-1)[0]/valoresColumnaPivote[index])
+   let valorMenorR:number =  valoresR.filter(f=>f>0).reduce((a,b)=>Math.min(a,b))
+   let indexFilaPivote:number =  valoresR.findIndex(dato=>dato==valorMenorR)+1
+   let numeroDividir:number = convertirInecuacionAecuacion[indexFilaPivote][indexColumnaPivote]
+   let filaConvertida:number[] = convertirInecuacionAecuacion[indexFilaPivote].map(fila=>fila/numeroDividir)
+   // let nuevaFilaZ:number[]= filaConvertida.map((dato,index)=>dato*minColumna*-1+convertirInecuacionAecuacion[0][index])
+   let nuevaTabla:number[][]= convertirInecuacionAecuacion.map((filaAnterior,indexFila)=>{
+      if(indexFila==indexFilaPivote){
+         return filaConvertida
+      }else{
+         return filaConvertida.map((dato,indexColumna)=> -1*filaAnterior[indexColumnaPivote]*dato+filaAnterior[indexColumna])
+      }
+
+   })
+   convertirInecuacionAecuacion = nuevaTabla
+   }
+   // let convertidoMatrix:any[] =   matrix.map((x:any)=>Object.values(x))
+   // return convertidoMatrix
+   return convertirInecuacionAecuacion.map(fila=>fila.map(columna=> Math.round((columna + Number.EPSILON) * 100) / 100))
+}

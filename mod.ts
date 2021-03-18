@@ -1,0 +1,1 @@
+export * as geometria_analitica from "src/geometria_analitica/index.ts"

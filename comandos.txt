@@ -3,3 +3,7 @@ https://deno.land/x/dext@0.10.3
 deno test test/reconocimiento.test.ts
 
 deno bundle index.ts index.js
+
+deno test  test/fisica_electronica/fisica_electronica.test.ts
+deno test  test/reconocimiento.test.ts
+denon test  test/reconocimiento.test.ts
