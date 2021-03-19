@@ -183,6 +183,24 @@ let simplexPrimal:{matrix:VariableSimple,resultado:number[][]}[]= [
             [2, 1, 0,  0,-2, 3, 0, 36],
             [0,0, 0,  0,0, -0.5, 1, 25]
         ]
+    },
+    {
+        matrix://https://youtu.be/L0Hg3cuPgy0?t=571
+            {
+                z:{x:[-2,-1,-5],sol:0},
+                ecuations:[
+                    {x:[1,2,2,4],sol:40},
+                    {x:[2,-1,1,2],sol:8},
+                    {x:[1,-2,1,-1],sol:40}
+                ]
+            }
+        ,
+        resultado:[
+            [20,  0, 0,1,1, 21, 0, 882],
+            [0,  0, 1, 0,1, -1, 0, 2],
+            [2, 1, 0,  0,-2, 3, 0, 36],
+            [0,0, 0,  0,0, -0.5, 1, 25]
+        ]
     }
 ]
 simplexPrimal.forEach((data:{matrix:VariableSimple,resultado:number[][]},index)=>{
