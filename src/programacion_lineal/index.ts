@@ -165,6 +165,18 @@ export interface VariableSimple{
    z:Ecuation
    ecuations:Ecuation[]
 }
+/**
+ x = indice de x
+ n = valor resultado
+ */
+export interface solucionesX{
+   c:number
+   f:number
+}
+export interface solucionSimples{
+   x:solucionesX[]
+   z:number
+}
 function generarMatrizUnosCeros(longitud:number):number[][]{
    let element:number[][] = []
    for (let fila = 0; fila < longitud; fila++) {
@@ -183,14 +195,13 @@ function generarMatrizUnosCeros(longitud:number):number[][]{
 function transformarInecuacionAEcuacion(matrix:VariableSimple):number[][]{
    let nuevaMatriz:number[][] = [matrix.z.x].concat(matrix.ecuations.map(x=>x.x))
    let nuevaMatrizSol:number[] = [matrix.z.sol].concat(matrix.ecuations.map(x=>x.sol))
-   let convertirInecuacionAecuacion:number[][]= generarMatrizUnosCeros(matrix.z.x.length+1)
+   let convertirInecuacionAecuacion:number[][]= generarMatrizUnosCeros(matrix.ecuations.length+1)
    .map((fila,indice)=> nuevaMatriz[indice].concat(fila).concat(nuevaMatrizSol[indice]) )
+   // console.log({convertirInecuacionAecuacion})
    return convertirInecuacionAecuacion
 }
-export function metodoSimplexprimal(matrix:VariableSimple):number[][]{//https://www.youtube.com/watch?v=fhZxbcFNH5Y
-   let convertirInecuacionAecuacion:number[][]= transformarInecuacionAEcuacion(matrix)
-   
-   while (convertirInecuacionAecuacion[0].some(columna=>columna<0)) {
+export interface icolumPivote {x:solucionesX,nuevaTabla:number[][]}
+export function columnaPivoteYiteracionSimplexprimal(convertirInecuacionAecuacion:number[][]):icolumPivote{
    let minColumna:number =  Math.min(... convertirInecuacionAecuacion[0])
    let indexColumnaPivote:number = convertirInecuacionAecuacion[0].findIndex(fila=>fila==minColumna)
    let valoresColumnaPivote:number[]= convertirInecuacionAecuacion.slice(1).map(fila=>fila.slice(indexColumnaPivote)[0])
@@ -198,7 +209,9 @@ export function metodoSimplexprimal(matrix:VariableSimple):number[][]{//https://
    let valorMenorR:number =  valoresR.filter(f=>f>0).reduce((a,b)=>Math.min(a,b))
    let indexFilaPivote:number =  valoresR.findIndex(dato=>dato==valorMenorR)+1
    let numeroDividir:number = convertirInecuacionAecuacion[indexFilaPivote][indexColumnaPivote]
+   console.log({numeroDividir})
    let filaConvertida:number[] = convertirInecuacionAecuacion[indexFilaPivote].map(fila=>fila/numeroDividir)
+   console.log({filaConvertida})
    // let nuevaFilaZ:number[]= filaConvertida.map((dato,index)=>dato*minColumna*-1+convertirInecuacionAecuacion[0][index])
    let nuevaTabla:number[][]= convertirInecuacionAecuacion.map((filaAnterior,indexFila)=>{
       if(indexFila==indexFilaPivote){
@@ -208,9 +221,105 @@ export function metodoSimplexprimal(matrix:VariableSimple):number[][]{//https://
       }
 
    })
-   convertirInecuacionAecuacion = nuevaTabla
+   
+
+   let x:solucionesX = {
+     c: indexColumnaPivote,
+     f: indexFilaPivote
+   }
+    return {x,nuevaTabla}
+}
+export interface resulMetodoSimplexPrimal {matrix:number[][],colectionCol:number[],solucion:solucionSimples}
+export function metodoSimplexprimal(matrix:VariableSimple):resulMetodoSimplexPrimal{//https://www.youtube.com/watch?v=fhZxbcFNH5Y
+   let convertirInecuacionAecuacion:number[][]= transformarInecuacionAEcuacion(matrix)
+   let coleccionIndexColumnaPivote:solucionesX[]=[]
+   while (convertirInecuacionAecuacion[0].some(columna=>columna<0)) {
+      let {x,nuevaTabla} = columnaPivoteYiteracionSimplexprimal(convertirInecuacionAecuacion)
+      console.log({x,nuevaTabla});      
+      coleccionIndexColumnaPivote.push(x)
+      convertirInecuacionAecuacion = nuevaTabla
    }
    // let convertidoMatrix:any[] =   matrix.map((x:any)=>Object.values(x))
    // return convertidoMatrix
-   return convertirInecuacionAecuacion.map(fila=>fila.map(columna=> Math.round((columna + Number.EPSILON) * 100) / 100))
+   console.log({coleccionIndexColumnaPivote})
+   let quitarFilasSobrePuestas = [...new Map(coleccionIndexColumnaPivote.map(a=>[a.f,a.c]))].map(a=>{ return {c:a[1],f:a[0]}})
+   console.log({quitarFilasSobrePuestas})
+   coleccionIndexColumnaPivote=quitarFilasSobrePuestas
+   convertirInecuacionAecuacion =  convertirInecuacionAecuacion.map(fila=>fila.map(columna=> Math.round((columna + Number.EPSILON) * 100) / 100))
+   let solucionX:solucionesX[] = coleccionIndexColumnaPivote.map((s:solucionesX)=>  { return {c:s.c,f:convertirInecuacionAecuacion[s.f].slice(-1)[0]}} )
+   solucionX.sort((a,b)=>a.c-b.c)
+   let  _solucionSimples:solucionSimples = {z:convertirInecuacionAecuacion[0].slice(-1)[0],x:solucionX}
+
+   return{ matrix:convertirInecuacionAecuacion,colectionCol:solucionX.map(x=>x.c).sort(),solucion:_solucionSimples}
+}
+
+export function metodoSimplexDual(matrix:VariableSimple):resulMetodoSimplexPrimal{//https://www.youtube.com/watch?v=R6qj-A6VXvQ
+   let convertirInecuacionAecuacion:number[][]= transformarInecuacionAEcuacion(matrix)
+   console.table(convertirInecuacionAecuacion)
+   let primerUnoMatrizZ  = convertirInecuacionAecuacion[0].lastIndexOf(1)
+   console.log({primerUnoMatrizZ})
+   // convertirInecuacionAecuacion.map(f=> f.splice(primerUnoMatrizZ,1))
+   console.table(convertirInecuacionAecuacion)
+   let coleccionIndexColumnaPivote:solucionesX[]=[]
+   let interaccion:number = 0;
+   while (convertirInecuacionAecuacion[0].slice(0,convertirInecuacionAecuacion[0].length-1).filter((f,i)=>primerUnoMatrizZ!=i).some(columna=>columna>0) || convertirInecuacionAecuacion.some(columna=>columna.slice(-1)[0]<0)) {
+      console.log({interaccion})
+      let {x,nuevaTabla} = columnaPivoteYiteracionSimplexDual(convertirInecuacionAecuacion,primerUnoMatrizZ)
+      console.log({x});    
+      console.table(nuevaTabla)
+      coleccionIndexColumnaPivote.push(x)
+      convertirInecuacionAecuacion = nuevaTabla
+      interaccion++;
+      // if(interaccion ==4) break
+   }
+   // let convertidoMatrix:any[] =   matrix.map((x:any)=>Object.values(x))
+   // return convertidoMatrix
+   console.log({coleccionIndexColumnaPivote})
+   let quitarFilasSobrePuestas = [...new Map(coleccionIndexColumnaPivote.map(a=>[a.f,a.c]))].map(a=>{ return {c:a[1],f:a[0]}})
+   console.log({quitarFilasSobrePuestas})
+   coleccionIndexColumnaPivote=quitarFilasSobrePuestas
+   let convertirInecuacionAecuacionRedondeo =  convertirInecuacionAecuacion.map(fila=>fila.map(columna=> Math.round((columna + Number.EPSILON) * 100) / 100))
+   console.table(convertirInecuacionAecuacionRedondeo)
+   let solucionX:solucionesX[] = coleccionIndexColumnaPivote.map((s:solucionesX)=>  { return {c:s.c,f:convertirInecuacionAecuacionRedondeo[s.f].slice(-1)[0]}} )
+   solucionX.sort((a,b)=>a.c-b.c)
+   let  _solucionSimples:solucionSimples = {z:convertirInecuacionAecuacionRedondeo[0].slice(-1)[0],x:solucionX}
+
+   return{ matrix:convertirInecuacionAecuacionRedondeo,colectionCol:solucionX.map(x=>x.c).sort(),solucion:_solucionSimples}
+}
+export function columnaPivoteYiteracionSimplexDual(convertirInecuacionAecuacion:number[][],primerUnoMatrizZ:number=convertirInecuacionAecuacion[0].lastIndexOf(1)):icolumPivote{
+   console.log({primerUnoMatrizZ})
+   let columnaResultado:number[] = convertirInecuacionAecuacion.flatMap (f=>f.slice(-1))
+   let minResultado:number =  Math.min(... columnaResultado)
+   console.log({minResultado})
+   let indexFilaPivote:number = columnaResultado.findIndex(fila=>fila==minResultado)
+   console.log({indexFilaPivote})
+   let valoresFilaPivote:number[]= convertirInecuacionAecuacion[indexFilaPivote]//.slice(1).map(fila=>fila.slice(indexColumnaPivote)[0])
+   console.log({valoresFilaPivote})
+   let valoresZ:number[] = convertirInecuacionAecuacion[0].slice(0,convertirInecuacionAecuacion[0].length-1).map((fila,index)=>fila/valoresFilaPivote[index])
+   console.log({valoresZ})
+   let valorMenorZ:number =  valoresZ.filter(f=>!Number.isNaN( f) && f !== Infinity).filter(f=>f!==0).reduce((a,b)=>Math.min(a,b))
+   console.log({valorMenorZ})
+   let indexColumnaPivote:number =  valoresZ.findIndex((fila)=>fila==valorMenorZ)
+   console.log({indexColumnaPivote})
+   let numeroDividir:number = convertirInecuacionAecuacion[indexFilaPivote][indexColumnaPivote]
+   console.log({numeroDividir})
+   let filaConvertida:number[] = convertirInecuacionAecuacion[indexFilaPivote].map(fila=> fila/numeroDividir)
+   console.log({filaConvertida})
+   let nuevaTabla:number[][]= convertirInecuacionAecuacion.map((filaAnterior,indexFila)=>{
+      if(indexFila==indexFilaPivote){
+         return filaConvertida
+      }else{
+         return filaConvertida.map((dato,indexColumna)=>{
+           // console.log(`indexColumna:${indexColumna}: -1*${filaAnterior[indexColumnaPivote]}*${dato}+${filaAnterior[indexColumna]}`)
+            return -1*filaAnterior[indexColumnaPivote]*dato+filaAnterior[indexColumna]})
+      }
+
+   })
+   console.table(nuevaTabla)
+
+   let x:solucionesX = {
+     c: indexColumnaPivote,
+     f: indexFilaPivote
+   }
+    return {x,nuevaTabla}
 }
