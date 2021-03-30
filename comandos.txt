@@ -7,3 +7,5 @@ deno bundle index.ts index.js
 deno test  test/fisica_electronica/fisica_electronica.test.ts
 deno test  test/reconocimiento.test.ts
 denon test  test/reconocimiento.test.ts
+
+denon run --allow-net --allow-read server.ts

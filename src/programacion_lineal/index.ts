@@ -297,7 +297,7 @@ export function columnaPivoteYiteracionSimplexDual(convertirInecuacionAecuacion:
    console.log({valoresFilaPivote})
    let valoresZ:number[] = convertirInecuacionAecuacion[0].slice(0,convertirInecuacionAecuacion[0].length-1).map((fila,index)=>fila/valoresFilaPivote[index])
    console.log({valoresZ})
-   let valorMenorZ:number =  valoresZ.filter(f=>!Number.isNaN( f) && f !== Infinity).filter(f=>f!==0).reduce((a,b)=>Math.min(a,b))
+   let valorMenorZ:number =  valoresZ.filter(f=>!Number.isNaN( f) && f !== Infinity && f !== -Infinity && f >0).filter(f=>f!==0).reduce((a,b)=>Math.min(a,b))
    console.log({valorMenorZ})
    let indexColumnaPivote:number =  valoresZ.findIndex((fila)=>fila==valorMenorZ)
    console.log({indexColumnaPivote})
@@ -309,9 +309,9 @@ export function columnaPivoteYiteracionSimplexDual(convertirInecuacionAecuacion:
       if(indexFila==indexFilaPivote){
          return filaConvertida
       }else{
-         return filaConvertida.map((dato,indexColumna)=>{
-           // console.log(`indexColumna:${indexColumna}: -1*${filaAnterior[indexColumnaPivote]}*${dato}+${filaAnterior[indexColumna]}`)
-            return -1*filaAnterior[indexColumnaPivote]*dato+filaAnterior[indexColumna]})
+         return filaConvertida.map((datoFilaConvertida,indexColumna)=>{
+           // console.log(`indexColumna:${indexColumna}: -1*${filaAnterior[indexColumnaPivote]}*${datoFilaConvertida}+${filaAnterior[indexColumna]}`)
+            return -1*filaAnterior[indexColumnaPivote]*datoFilaConvertida+filaAnterior[indexColumna]})
       }
 
    })

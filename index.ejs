@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-vidth, initial-scale=1.0">
+        <title>Serving html Page</title>
+    </head>
+    <body>
+
+        <% if (data.filas && data.columnas) { %>
+            <h2>tablas construida </h2>
+            <form method="POST">
+                <table>
+                    <tr>
+                        <th></th> 
+                        <% for(let c = 0;c< data.columnas;c++) {%>
+                            <th> x <%= c+1 %> </td>
+                        <%}%>
+                        <th>Solucion</th>
+                    </tr>
+                    <tr>
+                        <td>z </td>
+                        <% for(let c = 0;c< data.columnas;c++) {%>
+                            <td><input required name="z" type="number" step="0.01"  min="0"  /> </td>
+                        <%}%>
+                        <td></td>
+                    </tr>
+                    <% for(let f = 0;f < data.filas;f++){ %>
+                        <tr>
+                            <td>a <%= f+1 %></td>
+                            <% for(let c = 0;c< data.columnas;c++) {%>
+                                <td><input required name="a" type="number" step="0.01" min="0"  /> </td>
+                            <%}%>
+                            <td>
+                              R =  <input required  type="number" step="0.01" name="a" id="">
+                            </td>
+                        </tr>
+                    <%} %>
+                </table>    <br>
+                <select name="tipoSimplex" id="">
+                    <option value="0">Simplex Primal</option>
+                    <option value="1">Simplex dual</option>
+                </select>
+                <input type="reset" value="Reset">
+                <input type="submit" value="ver resultado">
+                      
+            </form>
+
+        <% } else { %>
+        
+        <h2> como construira la tabla </h2>
+        <form method="GET" >
+            <label>numero de filas</label>
+            <input name="filas" type="number" value="2" min="2"> <br>
+            <label>numero de columnas</label>
+            <input name="columnas" type="number"value="2"  min="2"><br>
+            <input value="crear" type="submit" >
+            
+        </form>
+         <% }%>
+
+    </body>
+</html>
