@@ -18,7 +18,10 @@ const app = new Application();
 const ejsEngine = await engineFactory.getEjsEngine();//https://ejs.co/
 
 const oakAdapter = await adapterFactory.getOakAdapter();
-
+/*falta crear archivos estaticos y probar wetcomponen https://www.youtube.com/watch?v=8bcfgXePHnk
+ https://www.youtube.com/watch?v=dEZXx2FVBdQ&list=PLIcuwIrm4rKfVEWId6In6rzVY6Xum0y9u
+https://www.youtube.com/watch?v=neko6u1vHcY&list=PLTd5ehIj0goNQNCgtu-M2oGGpyQ1m6nxo
+*/
 
 // now passing view engine as middleware to app
 
@@ -28,15 +31,15 @@ app. use(viewEngine(oakAdapter, ejsEngine))
 
 const router = new Router();
 
-router.get("/",async (ctx)=>{//https://developer.mozilla.org/en-US/docs/Web/API/URL/searchParams
+router.get("/simplex",async (ctx)=>{//https://developer.mozilla.org/en-US/docs/Web/API/URL/searchParams
     let query = ctx.request.url.searchParams
-    console.log("/")
+    console.log("/simplex")
     console.log(query.get("filas"))
     console.log(query.get("columnas"))
 
     ctx.render('index.ejs',{data:{filas:query.get("filas"), columnas:query.get("columnas")}})
 })
-.post("/", async(context:RouterContext)=>{//https://doc.deno.land/builtin/stable#URLSearchParams
+.post("/simplex", async(context:RouterContext)=>{//https://doc.deno.land/builtin/stable#URLSearchParams
     const { value } = context.request.body();
     const params  = await value;
     console.log(params)

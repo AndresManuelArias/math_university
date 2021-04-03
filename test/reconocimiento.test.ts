@@ -102,7 +102,17 @@ probarMetodoGaust=[
             [ 0, 1, 0, 1.772151898734177 ],
             [ 0, 0, 1, -1.3924050632911393 ]
         ]
-    } 
+    } ,
+    // {
+    //     matrix:[
+    //         [-1,4,-1],
+    //         [1,3,9]
+    //     ],
+    //     resultado:[
+    //         [ 1, 0, 39/7 ],
+    //         [ 0, 1, 8/7]
+    //     ]
+    // } 
 ]
 probarMetodoGaust.forEach((data:datosProbarModificacionMatrix,index)=>{
     Deno.test(`Metodo de Gaust  Jordan${index}`, () => {
@@ -398,16 +408,15 @@ let simplexDual:{matrix:VariableSimple,resultado:resulMetodoSimplexPrimal}[]= [
         resultado:
         { 
             matrix:[
-                [ 0 , 0 , 0 , 1 , -200 , -80  , -720 , 132400 ],
-                [ 0 , 0 , 1 , 0 ,  -1  , 0.25 , 0.75 ,   10   ],
-                [ 0 , 1 , 0 , 0 ,  0   , -0.1 , 0.1  ,   8    ],
-                [ 1 , 0 , 0 , 0 ,  2   ,  0   ,  -3  ,   60 ]
+                [ 0 , 0 , 0 , 1 , -3000 , -2000  , -1000 , 65500000 ],
+                [ 0 , 0 , 1 , 0 ,  -0.35  , 0.65 , -0.17 ,   630.43   ],
+                [ 1 , 0 , 0 , 0 ,  0.13   , -0.87 , 0.57  ,   326.09   ],
+                [ 0 , 1 , 0 , 0 ,  0.13   ,  0.13   ,  -0.43  ,   1326.09 ]
             ],
             colectionCol: [  0, 1,2 ],
-            solucion:{z: 132400 ,x:[
-                { c: 0, f: 60 },
-                { c: 1, f: 8 },
-                { c: 2, f: 10 }
+            solucion:{
+                z: 65500000,
+                x: [ { c: 0, f: 326.09 }, { c: 1, f: 1326.09 }, { c: 2, f: 630.43 }
             ]}
         }
     }
